@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+/* Paleta del manual de marca: cacao, rosa, rosa claro, crema y papel. Valores por tema. */
+:root {
+  --bg: #faf6f3;
+  --surface: #ffffff;
+  --blush: #ffdce8;
+  --cream: #f5ece3;
+  --rose: #bf7e82;
+  --text: #573a32;
+  --text-2: #7a5f57;
+  --separator: #e6d8ce;
+  --action: #9a545b;
+  --danger: #a8323e;
+  --primary: #573a32;
+  --primary-press: #6d4a40;
+  --on-primary: #faf6f3;
+
+  /* Le dice al navegador cómo dibujar sus controles nativos: calendario, listas desplegables y barras de desplazamiento. */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #2b1d19;
+    --surface: #3a2823;
+    --blush: #5a3a40;
+    --cream: #46312b;
+    --rose: #d79ba0;
+    --text: #f5ece3;
+    --text-2: #cdb8ad;
+    --separator: #5a433c;
+    --action: #e8a9ae;
+    --danger: #ff8a93;
+    --primary: #f5ece3;
+    --primary-press: #ffffff;
+    --on-primary: #2b1d19;
+
+    color-scheme: dark;
+  }
+}
+
+/* Se exponen como utilidades de Tailwind: bg-bg, bg-blush, text-text-2, border-separator, bg-primary... */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-blush: var(--blush);
+  --color-cream: var(--cream);
+  --color-rose: var(--rose);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-separator: var(--separator);
+  --color-action: var(--action);
+  --color-danger: var(--danger);
+  --color-primary: var(--primary);
+  --color-primary-press: var(--primary-press);
+  --color-on-primary: var(--on-primary);
+}
+
+@theme {
+  /* Relleno de peligro con texto blanco encima: contraste mínimo 4.5:1 en ambos temas */
+  --color-danger-solid: #a8323e;
+
+  --font-ui: 'Alpino', 'Nunito Sans', system-ui, sans-serif;
+  /* Itim: manuscrita con todo el español. Gaegu (la del manual) no trae acentos ni ñ, así que solo se usa en logo y números. */
+  --font-hand: 'Itim', 'Comic Sans MS', cursive;
+  --font-num: 'Gaegu', 'Itim', cursive;
+
+  --container-column: 30rem;
+  --shadow-card: 0 22px 44px -18px rgb(87 58 50 / 0.28), 0 2px 8px rgb(87 58 50 / 0.07);
+}
+
+/* Foco visible para teclado en cualquier elemento interactivo */
+@layer base {
+  /* Itim solo tiene un peso: sin esto el navegador simula negritas y se ve borroso */
+  .font-hand {
+    font-synthesis-weight: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 3px;
+  }
+}
