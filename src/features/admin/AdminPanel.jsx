@@ -36,7 +36,10 @@ function SectionTitle({ number, children }) {
 export default function AdminPanel() {
   const { slug } = useParams()
   const [params] = useSearchParams()
-  const justCreated = Boolean(useLocation().state?.created)
+  const routerLocation = useLocation()
+  const justCreated = Boolean(routerLocation.state?.created)
+  // Editar exclusiones y regalos a mano solo está disponible con #adm en la URL.
+  const advanced = routerLocation.hash === '#adm'
   const token = params.get('k') || getAdminToken(slug)
 
   const [status, setStatus] = useState('loading') // loading | ok | denied | error
@@ -268,44 +271,48 @@ export default function AdminPanel() {
 
         <Card className="flex flex-col gap-3 lg:col-start-1">
           <SectionTitle number="04">Sorteo</SectionTitle>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-hand text-[1.5rem] leading-none">Quién no debe tocarse</h3>
-            {group.exclusions.length === 0 ? (
-              <p className="text-text-2">Nadie está excluido: todos pueden tocarse.</p>
-            ) : (
-              <ul className="flex flex-wrap gap-2">
-                {group.exclusions.map(([a, b]) => (
-                  <li key={`${a}|${b}`} className="rounded-full bg-blush px-4 py-1 text-sm font-bold">
-                    {nameById[a]} y {nameById[b]}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {group.canRedraw && (
-              <Button variant="secondary" onClick={() => setEditingExclusions(true)}>
-                Editar exclusiones
-              </Button>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-hand text-[1.5rem] leading-none">Regalos decididos a mano</h3>
-            {group.fixedAssignments.length === 0 ? (
-              <p className="text-text-2">Ninguno: todo el sorteo es al azar.</p>
-            ) : (
-              <ul className="flex flex-wrap gap-2">
-                {group.fixedAssignments.map(([giver, receiver]) => (
-                  <li key={`${giver}|${receiver}`} className="rounded-full bg-blush px-4 py-1 text-sm font-bold">
-                    {nameById[giver]} → {nameById[receiver]}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {group.canRedraw && (
-              <Button variant="secondary" onClick={() => setEditingFixed(true)}>
-                Editar regalos a mano
-              </Button>
-            )}
-          </div>
+          {(advanced || group.exclusions.length > 0) && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-hand text-[1.5rem] leading-none">Quién no debe tocarse</h3>
+              {group.exclusions.length === 0 ? (
+                <p className="text-text-2">Nadie está excluido: todos pueden tocarse.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-2">
+                  {group.exclusions.map(([a, b]) => (
+                    <li key={`${a}|${b}`} className="rounded-full bg-blush px-4 py-1 text-sm font-bold">
+                      {nameById[a]} y {nameById[b]}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {advanced && group.canRedraw && (
+                <Button variant="secondary" onClick={() => setEditingExclusions(true)}>
+                  Editar exclusiones
+                </Button>
+              )}
+            </div>
+          )}
+          {(advanced || group.fixedAssignments.length > 0) && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-hand text-[1.5rem] leading-none">Regalos decididos a mano</h3>
+              {group.fixedAssignments.length === 0 ? (
+                <p className="text-text-2">Ninguno: todo el sorteo es al azar.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-2">
+                  {group.fixedAssignments.map(([giver, receiver]) => (
+                    <li key={`${giver}|${receiver}`} className="rounded-full bg-blush px-4 py-1 text-sm font-bold">
+                      {nameById[giver]} → {nameById[receiver]}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {advanced && group.canRedraw && (
+                <Button variant="secondary" onClick={() => setEditingFixed(true)}>
+                  Editar regalos a mano
+                </Button>
+              )}
+            </div>
+          )}
           {group.canRedraw ? (
             <>
               <p className="text-text-2">
