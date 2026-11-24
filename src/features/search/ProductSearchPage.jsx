@@ -135,7 +135,7 @@ export default function ProductSearchPage() {
         if (!alive) return
         if (g && !me) return navigate(`/g/${slug}`, { replace: true })
         setGroup(g)
-        if (g) setMine(await getMyWishlist(slug, token))
+        if (g) setMine((await getMyWishlist(slug, token)).items)
       } catch (e) {
         if (alive) setLoadError(e.message)
       }

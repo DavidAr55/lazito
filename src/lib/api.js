@@ -127,8 +127,19 @@ const itemBody = ({ categoryId, title, price, url, imageUrl, note }) => ({
   note: note.trim() || null,
 })
 
+// Devuelve los productos y el comentario general de la wishlist ({ items, note }).
 export async function getMyWishlist(slug, claimToken) {
-  return (await request(`${group(slug)}/me/wishlist`, { token: claimToken })).map(toItem)
+  const { data, note } = await request(`${group(slug)}/me/wishlist`, { token: claimToken, full: true })
+  return { items: data.map(toItem), note: note ?? '' }
+}
+
+export async function saveWishlistNote(slug, claimToken, note) {
+  const saved = await request(`${group(slug)}/me/wishlist-note`, {
+    method: 'PUT',
+    body: { note: note.trim() || null },
+    token: claimToken,
+  })
+  return saved.note ?? ''
 }
 
 export async function addWishlistItem(slug, claimToken, item) {
@@ -151,7 +162,8 @@ export async function deleteWishlistItem(slug, claimToken, id) {
 
 // Wishlist de la persona a la que le regalo.
 export async function getReceiverWishlist(slug, claimToken) {
-  return (await request(`${group(slug)}/me/assignment/wishlist`, { token: claimToken })).map(toItem)
+  const { data, note } = await request(`${group(slug)}/me/assignment/wishlist`, { token: claimToken, full: true })
+  return { items: data.map(toItem), note: note ?? '' }
 }
 
 // ---------- Administración ----------

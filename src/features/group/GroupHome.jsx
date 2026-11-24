@@ -7,6 +7,7 @@ import {
   deleteWishlistItem,
   getMyWishlist,
   getReceiverWishlist,
+  saveWishlistNote,
   updateWishlistItem,
 } from '../../lib/api'
 import { formatMoney } from '../../lib/format'
@@ -14,6 +15,7 @@ import { getClaimToken } from '../../lib/session'
 import ItemDetail from '../wishlist/ItemDetail'
 import ItemForm from '../wishlist/ItemForm'
 import WishlistGrid from '../wishlist/WishlistGrid'
+import WishlistNote from '../wishlist/WishlistNote'
 import InvitationCard from './InvitationCard'
 
 function Tab({ active, onClick, children }) {
@@ -36,7 +38,9 @@ export default function GroupHome({ group, me, receiver, onShowReveal }) {
   const token = getClaimToken(group.slug)
   const [tab, setTab] = useState('mine')
   const [mine, setMine] = useState(null)
+  const [mineNote, setMineNote] = useState(null)
   const [theirs, setTheirs] = useState(null)
+  const [theirsNote, setTheirsNote] = useState('')
   const [loadError, setLoadError] = useState('')
   const [viewing, setViewing] = useState(null) // item abierto en el detalle
   const [form, setForm] = useState({ open: false, item: null })
@@ -44,7 +48,11 @@ export default function GroupHome({ group, me, receiver, onShowReveal }) {
   useEffect(() => {
     let alive = true
     getMyWishlist(group.slug, token)
-      .then((items) => alive && setMine(items))
+      .then(({ items, note }) => {
+        if (!alive) return
+        setMine(items)
+        setMineNote(note)
+      })
       .catch((e) => alive && setLoadError(e.message))
     return () => {
       alive = false
@@ -55,7 +63,11 @@ export default function GroupHome({ group, me, receiver, onShowReveal }) {
     if (!receiver) return
     let alive = true
     getReceiverWishlist(group.slug, token)
-      .then((items) => alive && setTheirs(items))
+      .then(({ items, note }) => {
+        if (!alive) return
+        setTheirs(items)
+        setTheirsNote(note)
+      })
       .catch((e) => alive && setLoadError(e.message))
     return () => {
       alive = false
@@ -107,6 +119,18 @@ export default function GroupHome({ group, me, receiver, onShowReveal }) {
             {receiverFirstName ? `Wishlist de ${receiverFirstName}` : 'Su wishlist'}
           </Tab>
         </div>
+
+        {showingMine && mineNote !== null && (
+          <WishlistNote
+            note={mineNote}
+            onSave={async (value) => {
+              const saved = await saveWishlistNote(group.slug, token, value)
+              setMineNote(saved)
+              return saved
+            }}
+          />
+        )}
+        {!showingMine && <WishlistNote note={theirsNote} name={receiverFirstName} />}
 
         {loadError && (
           <p role="alert" className="mt-4 text-danger">
