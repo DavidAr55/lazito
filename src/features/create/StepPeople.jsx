@@ -5,7 +5,7 @@ import ExclusionsEditor from '../../components/ExclusionsEditor'
 import FixedAssignmentsEditor from '../../components/FixedAssignmentsEditor'
 import Field from '../../components/Field'
 
-export default function StepPeople({ data, onChange, errors, error }) {
+export default function StepPeople({ data, onChange, errors, error, advanced = false }) {
   const [draft, setDraft] = useState('')
   const [dupe, setDupe] = useState(false)
 
@@ -85,7 +85,7 @@ export default function StepPeople({ data, onChange, errors, error }) {
           ))}
         </ul>
       )}
-      {data.people.length >= 4 && (
+      {advanced && data.people.length >= 4 && (
         <div className="mt-2 flex flex-col gap-3 rounded-2xl bg-cream p-4">
           <h3 className="font-hand text-[1.5rem] leading-none">¿Alguien no debe tocarse?</h3>
           <p className="text-sm text-text-2">Por ejemplo, una pareja. Esas personas nunca se regalarán entre sí.</p>
@@ -97,7 +97,7 @@ export default function StepPeople({ data, onChange, errors, error }) {
           />
         </div>
       )}
-      {data.people.length >= 3 && (
+      {advanced && data.people.length >= 3 && (
         <div className="flex flex-col gap-3 rounded-2xl bg-cream p-4">
           <h3 className="font-hand text-[1.5rem] leading-none">¿Quieres decidir un regalo a mano?</h3>
           <p className="text-sm text-text-2">

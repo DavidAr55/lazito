@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { HeroArt } from '../../components/Art'
 import Button from '../../components/Button'
 import Card from '../../components/Card'
@@ -37,6 +37,8 @@ function validate(step, d) {
 
 export default function CreateWizard() {
   const navigate = useNavigate()
+  // Opciones avanzadas (exclusiones y regalos a mano) solo con /#adm en la URL.
+  const advanced = useLocation().hash === '#adm'
   useDocumentTitle('Crear intercambio')
   const [step, setStep] = useState(0)
   const [errors, setErrors] = useState({})
@@ -97,7 +99,7 @@ export default function CreateWizard() {
         <GiftProgress count={STEPS.length} current={step} />
         <h2 className="mt-6 font-hand text-[2.25rem] leading-none font-bold">{title}</h2>
         <div className="mt-5">
-          <Component data={data} onChange={patch} errors={errors} error={submitError} />
+          <Component data={data} onChange={patch} errors={errors} error={submitError} advanced={advanced} />
         </div>
         <div className="mt-7 flex flex-col gap-1">
           <Button full chevron onClick={next} disabled={busy}>
