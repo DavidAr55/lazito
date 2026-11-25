@@ -20,7 +20,7 @@ function Tile({ item, index, onOpen }) {
       onClick={() => onOpen(item)}
       className="flex w-full flex-col overflow-hidden rounded-3xl bg-surface text-left shadow-card ring-1 ring-blush/70 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
-      <span className="relative block aspect-square bg-white">
+      <span className="relative block aspect-square overflow-hidden bg-white">
         {showImage ? (
           <img
             src={item.imageUrl}
@@ -28,7 +28,7 @@ function Tile({ item, index, onOpen }) {
             loading="lazy"
             referrerPolicy="no-referrer"
             onError={() => setImageFailed(true)}
-            className="size-full object-contain"
+            className="absolute inset-0 size-full object-contain"
           />
         ) : (
           <span className="grid size-full place-items-center">
