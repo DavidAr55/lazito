@@ -12,10 +12,10 @@ async function request(path, { method = 'GET', body, token, full = false } = {})
       method,
       headers: {
         Accept: 'application/json',
-        ...(body && { 'Content-Type': 'application/json' }),
+        ...(body && !(body instanceof FormData) && { 'Content-Type': 'application/json' }),
         ...(token && { Authorization: `Bearer ${token}` }),
       },
-      body: body && JSON.stringify(body),
+      body: body instanceof FormData ? body : body && JSON.stringify(body),
     })
   } catch {
     throw apiError('NETWORK', 'No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.')
@@ -140,6 +140,14 @@ export async function saveWishlistNote(slug, claimToken, note) {
     token: claimToken,
   })
   return saved.note ?? ''
+}
+
+// Sube una foto (captura) y devuelve la URL pública con la que se guarda en el producto.
+export async function uploadWishlistImage(slug, claimToken, file) {
+  const body = new FormData()
+  body.append('image', file)
+  const { url } = await request(`${group(slug)}/me/wishlist-images`, { method: 'POST', body, token: claimToken })
+  return url
 }
 
 export async function addWishlistItem(slug, claimToken, item) {

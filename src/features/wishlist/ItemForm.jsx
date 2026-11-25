@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Button from '../../components/Button'
 import Field from '../../components/Field'
 import Sheet from '../../components/Sheet'
+import { uploadWishlistImage } from '../../lib/api'
+import { getClaimToken } from '../../lib/session'
 import { formatMoney } from '../../lib/format'
 
 // Valores iniciales: el producto que se edita, o vacíos para uno nuevo.
@@ -20,6 +22,25 @@ function Form({ group, item, onSave }) {
   const [values, setValues] = useState(() => initialValues(item))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [previewFailed, setPreviewFailed] = useState(false)
+  const fileInput = useRef(null)
+
+  const upload = async (file) => {
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const url = await uploadWishlistImage(group.slug, getClaimToken(group.slug), file)
+      setPreviewFailed(false)
+      setValues((v) => ({ ...v, imageUrl: url }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      if (fileInput.current) fileInput.current.value = ''
+    }
+  }
 
   const set = (patch) => {
     setValues((v) => ({ ...v, ...patch }))
@@ -98,13 +119,39 @@ function Form({ group, item, onSave }) {
         value={values.url}
         onChange={(e) => set({ url: e.target.value })}
       />
-      <Field
-        label="Enlace de la imagen (opcional)"
-        type="url"
-        placeholder="https://"
-        value={values.imageUrl}
-        onChange={(e) => set({ imageUrl: e.target.value })}
-      />
+      <div className="flex flex-col gap-2">
+        <span className="text-[0.9375rem] font-bold">Foto (opcional)</span>
+        {values.imageUrl && !previewFailed && (
+          <img
+            src={values.imageUrl}
+            alt=""
+            referrerPolicy="no-referrer"
+            onError={() => setPreviewFailed(true)}
+            className="max-h-48 w-full rounded-2xl bg-white object-contain"
+          />
+        )}
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => upload(e.target.files?.[0])}
+        />
+        <Button type="button" variant="secondary" full disabled={uploading} onClick={() => fileInput.current?.click()}>
+          {uploading ? 'Subiendo…' : values.imageUrl ? 'Cambiar foto' : 'Subir una foto o captura'}
+        </Button>
+        <Field
+          label="…o pega el enlace de la imagen"
+          type="url"
+          placeholder="https://"
+          value={values.imageUrl}
+          onChange={(e) => {
+            setPreviewFailed(false)
+            set({ imageUrl: e.target.value })
+          }}
+          error={values.imageUrl && previewFailed ? 'No pudimos mostrar esa imagen. Prueba subiéndola como foto.' : undefined}
+        />
+      </div>
       <Field
         label="Nota (opcional)"
         multiline
@@ -118,7 +165,7 @@ function Form({ group, item, onSave }) {
           {error}
         </p>
       )}
-      <Button type="submit" full disabled={busy}>
+      <Button type="submit" full disabled={busy || uploading}>
         {item ? 'Guardar cambios' : 'Agregar a mi wishlist'}
       </Button>
     </form>

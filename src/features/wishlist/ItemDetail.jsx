@@ -6,6 +6,7 @@ import { formatMoney } from '../../lib/format'
 function Detail({ group, item, onEdit, onDelete }) {
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
   const category = group.categories.find((c) => c.id === item.categoryId)
 
   const remove = async () => {
@@ -15,12 +16,13 @@ function Detail({ group, item, onEdit, onDelete }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {item.imageUrl && (
+      {item.imageUrl && !imageFailed && (
         <img
           src={item.imageUrl}
           alt=""
           referrerPolicy="no-referrer"
-          className="max-h-72 w-full rounded-2xl object-cover"
+          onError={() => setImageFailed(true)}
+          className="max-h-72 w-full rounded-2xl bg-white object-contain"
         />
       )}
       <div>
